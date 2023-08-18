@@ -15,9 +15,9 @@ const deleteCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.message === 'CastError') {
-        res.status(400).send({ message: 'Некорректный id карточки', err });
+        res.status(500).send({ message: 'Что-то пошло не так', err });
       } else {
-        return res.status(500).send({ message: 'Что-то пошло не так', err });
+        return res.status(400).send({ message: 'Некорректный id карточки', err });
       }
     });
 };
