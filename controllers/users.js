@@ -3,7 +3,7 @@ const User = require('../models/user');
 // Получение списка пользователей
 const getUserList = (req, res, next) => {
   User.find({})
-    .then((userList) => res.send({ data: userList }))
+    .then((userList) => res.status(200).send({ data: userList }))
     .catch(next);
 };
 
@@ -35,9 +35,12 @@ const registerUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
-      console.log(err);
-      console.error('Переданы некорректные данные при создании пользователя');
-      res.status(500).json({ message: 'Не удалось создать пользователя', err });
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Переданы некорректные данные в метод создания пользователя',
+        });
+      }
+      return res.status(500).json({ message: 'Не удалось создать пользователя', err });
     });
 };
 
@@ -49,7 +52,7 @@ const updateUserAvatar = (req, res) => {
     new: true,
     runValidators: true,
   })
-    .then((updatedAvatar) => res.status(201).send({ data: updatedAvatar }))
+    .then((updatedAvatar) => res.status(200).send({ data: updatedAvatar }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
@@ -67,7 +70,7 @@ const updateUserData = (req, res) => {
     new: true,
     runValidators: true,
   })
-    .then((updatedData) => res.status(201).send({ data: updatedData }))
+    .then((updatedData) => res.status(200).send({ data: updatedData }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });

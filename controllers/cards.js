@@ -7,16 +7,17 @@ const deleteCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (card) {
-        res.status(201).send({ data: card });
+        res.status(200).send({ data: card });
       } else {
         return res.status(404).send({ message: 'Карточка не найдена', card });
       }
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res.status(404).send({ message: 'Карточка не найдена', err });
+      if (err.message === 'CastError') {
+        res.status(400).send({ message: 'Некорректный id карточки', err });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так', err });
+        return res.status(500).send({ message: 'Что-то пошло не так', err });
       }
     });
 };
@@ -40,7 +41,12 @@ const createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((cardObject) => res.status(201).send({ data: cardObject }))
     .catch((err) => {
-      res.status(500).json({ message: 'Не удалось создать карточку', err });
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Переданы некорректные данные в метод создания карточки',
+        });
+      }
+      return res.status(500).json({ message: 'Не удалось создать карточку', err });
     });
 };
 // Лайк карточки
@@ -73,18 +79,20 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+    // eslint-disable-next-line consistent-return
     .then((dislikedCard) => {
       if (dislikedCard) {
         res.send({ data: dislikedCard });
       } else {
-        res.status(404).send({ message: 'Карточка по указанному _id не найдена' });
+        return res.status(404).send({ message: 'Карточка по указанному _id не найдена' });
       }
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(404).send({ message: 'Карточка не найдена', err });
+        res.status(400).send({ message: 'Некорректный id карточки', err });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так', err });
+        return res.status(500).send({ message: 'Что-то пошло не так', err });
       }
     });
 };
