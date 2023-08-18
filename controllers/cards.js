@@ -67,11 +67,11 @@ const likeCard = (req, res) => {
     if (err.name === 'CastError') {
       return res.status(400).send({ message: 'Некорректный id карточки', err });
     }
-    return res.status(500).send({ message: err.message });
+    return res.status(500).send({ message: 'Что-то пошло не так', err });
   });
 };
 
-// Диздайк карточки
+// Дизлайк карточки
 const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
@@ -90,9 +90,9 @@ const dislikeCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.message === 'CastError') {
-        res.status(400).send({ message: 'Некорректный id карточки', err });
+        res.status(500).send({ message: 'Что-то пошло не так', err });
       } else {
-        return res.status(500).send({ message: 'Что-то пошло не так', err });
+        return res.status(400).send({ message: 'Некорректный id карточки', err });
       }
     });
 };

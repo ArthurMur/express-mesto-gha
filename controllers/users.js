@@ -32,6 +32,12 @@ const getUserId = (req, res) => {
 const registerUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
+  if (!name || !about || !avatar) {
+    return res.status(400).send({
+      message: 'Не заполнено обязательное поле name, about и/или avatar',
+    });
+  }
+
   User.create({ name, about, avatar })
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
