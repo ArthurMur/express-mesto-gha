@@ -11,9 +11,11 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 // возвращает информацию о текущем пользователе
 const getMe = (req, res) => {
-  const { _id } = req.user;
+  const { _id } = req.params;
   User.find(_id)
-    .then((user) => res.send(...user))
+    .then((user) => {
+      if (user) return res.status(200).send({ user });
+    })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
@@ -56,7 +58,7 @@ const registerUser = (req, res) => {
   User.findOne({ email })
     .then((existingUser) => {
       if (existingUser) {
-        return res.status(400).send({
+        return res.status(409).send({
           message: 'Пользователь с таким электронным адресом уже зарегистрирован',
         });
       }

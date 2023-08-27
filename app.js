@@ -31,7 +31,7 @@ app.use('/cards', cardRouter);
 app.post('/signin', login);
 app.post('/signup', registerUser);
 
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемая страница не найдена' });
 });
 

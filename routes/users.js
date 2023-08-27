@@ -8,13 +8,13 @@ const {
 
 // возвращает всех пользователей
 userRouter.get('/', auth, getUserList);
-// возвращает пользователя по _id
-userRouter.get('/:userId', auth, getUserId);
+// возвращает информацию о текущем пользователе
+userRouter.get('/me', auth, getMe);
 // обновляет профиль
 userRouter.patch('/me', auth, updateUserData);
 // обновляет аватар
 userRouter.patch('/me/avatar', auth, updateUserAvatar);
-// возвращает информацию о текущем пользователе
-userRouter.get('/me', auth, getMe);
+// возвращает пользователя по _id
+userRouter.get('/:userId', auth, getUserId);
 
 module.exports = userRouter;
