@@ -49,14 +49,14 @@ const registerUser = (req, res) => {
   } = req.body;
 
   if (!email || !password) {
-    return res.status(401).send({
+    return res.status(400).send({
       message: 'Заполните все обязательные поля (почта и пароль)',
     });
   }
   User.findOne({ email })
     .then((existingUser) => {
       if (existingUser) {
-        return res.status(401).send({
+        return res.status(400).send({
           message: 'Пользователь с таким электронным адресом уже зарегистрирован',
         });
       }
@@ -129,7 +129,7 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      res.status(400).send({ message: err.message });
     });
 };
 

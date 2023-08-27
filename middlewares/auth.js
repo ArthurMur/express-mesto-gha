@@ -20,13 +20,13 @@ const tokenVerify = (token) => {
 };
 
 module.exports = (req, res, next) => {
-  const token = req.cookies.jwt || req.headers.authorization.replace('Bearer ', '');
+  const token = req.cookies.jwt;
   if (!token) {
-    return handleAuthError(next);
+    return handleAuthError(res);
   }
   const payload = tokenVerify(token);
   if (!payload) {
-    handleAuthError(next);
+    handleAuthError(res);
   }
   req.user = payload;
   return next();
