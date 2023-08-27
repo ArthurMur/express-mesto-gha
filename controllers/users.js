@@ -49,14 +49,14 @@ const registerUser = (req, res) => {
   } = req.body;
 
   if (!email || !password) {
-    return res.status(400).send({
+    return res.status(401).send({
       message: 'Заполните все обязательные поля (почта и пароль)',
     });
   }
-  User.findOne({ email }) // Check if a user with the same email already exists
+  User.findOne({ email })
     .then((existingUser) => {
       if (existingUser) {
-        return res.status(400).send({
+        return res.status(401).send({
           message: 'Пользователь с таким электронным адресом уже зарегистрирован',
         });
       }
