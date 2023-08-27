@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const auth = require('./middlewares/auth');
+const cookieParser = require('cookie-parser');
 
 const {
   login, registerUser,
@@ -18,6 +18,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // подключаемся к серверу mongo
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
@@ -28,8 +29,6 @@ app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 app.post('/signin', login);
 app.post('/signup', registerUser);
-
-app.use(auth);
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемая страница не найдена' });

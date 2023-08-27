@@ -11,18 +11,22 @@ const handleAuthError = (res) => {
   res.status(401).send({ message: 'Необходима авторизация' });
 };
 
-module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
-  const bearer = 'Bearer ';
-  if (!authorization || !authorization.startsWith(bearer)) {
-    return handleAuthError(res);
-  }
-  const token = authorization.replace(bearer, '');
-  let payload;
+const tokenVerify = (token) => {
   try {
-    payload = jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return handleAuthError(res);
+    return '';
+  }
+};
+
+module.exports = (req, res, next) => {
+  const token = req.cookies.jwt || req.headers.authorization.replace('Bearer ', '');
+  if (!token) {
+    return handleAuthError(next);
+  }
+  const payload = tokenVerify(token);
+  if (!payload) {
+    handleAuthError(next);
   }
   req.user = payload;
   return next();

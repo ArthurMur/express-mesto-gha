@@ -1,4 +1,5 @@
 const cardRouter = require('express').Router();
+const auth = require('../middlewares/auth');
 
 const {
   getCards, createCard, deleteCard,
@@ -6,14 +7,14 @@ const {
 } = require('../controllers/cards');
 
 // возвращает все карточки
-cardRouter.get('/', getCards);
+cardRouter.get('/', auth, getCards);
 // создает карточку по _id
-cardRouter.post('/', createCard);
+cardRouter.post('/', auth, createCard);
 // удаляет карточку
-cardRouter.delete('/:cardId', deleteCard);
+cardRouter.delete('/:cardId', auth, deleteCard);
 // поставить лайк
-cardRouter.put('/:cardId/likes', likeCard);
+cardRouter.put('/:cardId/likes', auth, likeCard);
 // убрать лайк
-cardRouter.delete('/:cardId/likes', dislikeCard);
+cardRouter.delete('/:cardId/likes', auth, dislikeCard);
 
 module.exports = cardRouter;

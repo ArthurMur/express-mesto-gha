@@ -13,7 +13,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const getMe = (req, res) => {
   const { _id } = req.user;
   User.find(_id)
-    .then((user) => res.send(user))
+    .then((user) => res.send(...user))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
@@ -126,7 +126,7 @@ const login = (req, res) => {
         maxAge: 3600000,
         httpOnly: true,
       });
-      res.send({ _id: token });
+      res.send({ token });
     })
     .catch((err) => {
       res.status(401).send({ message: err.message });
