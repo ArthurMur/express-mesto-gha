@@ -1,11 +1,16 @@
 /* eslint-disable no-console */
+/* eslint-disable import/no-unresolved */
 const express = require('express');
 const mongoose = require('mongoose');
-// eslint-disable-next-line import/no-extraneous-dependencies
 const bodyParser = require('body-parser');
-
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const auth = require('./middlewares/auth');
+
+const {
+  login, registerUser,
+// eslint-disable-next-line import/extensions
+} = require('./controllers/users');
 
 const { PORT = 3000, BASE_PATH = 'localhost' } = process.env;
 
@@ -19,21 +24,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => console.log('База данных подключена.'))
   .catch((err) => console.log('DB error', err));
 
-app.use((req, res, next) => {
-  try {
-    const loggedInUserId = '64da823577ed7dbabaedb1c9';
-    req.user = {
-      _id: loggedInUserId,
-    };
-    next();
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
+app.post('/signin', login);
+app.post('/signup', registerUser);
+
+app.use(auth);
+
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемая страница не найдена' });
 });

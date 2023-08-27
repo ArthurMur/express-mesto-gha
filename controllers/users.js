@@ -1,4 +1,21 @@
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import/no-unresolved */
+/* eslint-disable consistent-return */
+// eslint-disable-next-line import/no-unresolved
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+require('dotenv').config();
+
+const { NODE_ENV, JWT_SECRET } = process.env;
+
+// возвращает информацию о текущем пользователе
+const getMe = (req, res) => {
+  const { _id } = req.user;
+  User.find(_id)
+    .then((user) => res.send(user))
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
 
 // Получение списка пользователей
 const getUserList = (req, res, next) => {
@@ -11,14 +28,12 @@ const getUserList = (req, res, next) => {
 const getUserId = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
-    // eslint-disable-next-line consistent-return
     .then((selectedUser) => {
       if (!selectedUser) {
         return res.status(404).send({ message: 'Пользователь не найден' });
       }
       res.status(200).send({ data: selectedUser });
     })
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Неверный ID' });
@@ -28,32 +43,44 @@ const getUserId = (req, res) => {
 };
 
 // Создание пользователя (Регистрация)
-// eslint-disable-next-line consistent-return
 const registerUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  if (!name || !about || !avatar) {
+  if (!email || !password) {
     return res.status(400).send({
-      message: 'Не заполнено обязательное поле name, about и/или avatar',
+      message: 'Заполните все обязательные поля (почта и пароль)',
     });
   }
-
-  User.create({ name, about, avatar })
-    .then((user) => res.status(201).send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
+  User.findOne({ email }) // Check if a user with the same email already exists
+    .then((existingUser) => {
+      if (existingUser) {
         return res.status(400).send({
-          message: 'Переданы некорректные данные в метод создания пользователя',
+          message: 'Пользователь с таким электронным адресом уже зарегистрирован',
         });
       }
-      return res.status(500).json({ message: 'Не удалось создать пользователя', err });
+      bcrypt
+        .hash(password, 10)
+        .then((hash) => User.create({
+          name, about, avatar, email, password: hash,
+        })
+          .then((user) => res.status(201).send({ data: user }))
+          .catch((err) => {
+            if (err.name === 'ValidationError') {
+              return res.status(400).send({
+                message: 'Переданы некорректные данные в метод создания пользователя',
+              });
+            }
+            return res.status(500).json({ message: 'Не удалось создать пользователя', err });
+          })
+          .catch((err) => res.status(500).json({ message: 'Не удалось проверить существующих пользователей', err })));
     });
 };
 
 // Обновление аватара пользователя
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  // eslint-disable-next-line no-underscore-dangle
   User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true,
     runValidators: true,
@@ -71,7 +98,6 @@ const updateUserAvatar = (req, res) => {
 // Обновление профиля пользователя
 const updateUserData = (req, res) => {
   const { name, about } = req.body;
-  // eslint-disable-next-line no-underscore-dangle
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
     runValidators: true,
@@ -86,10 +112,33 @@ const updateUserData = (req, res) => {
     });
 };
 
+// Проверка почты и пароля
+const login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' },
+      );
+      res.cookie('jwt', token, {
+        maxAge: 3600000,
+        httpOnly: true,
+      });
+      res.send({ _id: token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
+
 module.exports = {
   getUserList,
   getUserId,
   registerUser,
   updateUserAvatar,
   updateUserData,
+  login,
+  getMe,
 };
