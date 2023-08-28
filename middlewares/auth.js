@@ -20,7 +20,14 @@ const tokenVerify = (token) => {
 };
 
 module.exports = (req, res, next) => {
-  const token = req.cookies.jwt;
+  const jwtSubstring = 'jwt=';
+  const tokenIndex = req.headers.cookie.indexOf(jwtSubstring);
+  let token = '';
+
+  if (tokenIndex !== -1) {
+    token = req.headers.cookie.slice(tokenIndex + jwtSubstring.length);
+  }
+
   if (!token) {
     return handleAuthError(res);
   }
@@ -28,6 +35,7 @@ module.exports = (req, res, next) => {
   if (!payload) {
     handleAuthError(res);
   }
+
   req.user = payload;
   return next();
 };

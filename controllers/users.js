@@ -125,6 +125,7 @@ const updateUserData = (req, res) => {
 
 // Проверка почты и пароля
 const login = (req, res) => {
+  console.log(req.headers);
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
