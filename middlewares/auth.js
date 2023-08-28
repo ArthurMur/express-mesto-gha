@@ -20,8 +20,7 @@ const tokenVerify = (token) => {
 };
 
 module.exports = (req, res, next) => {
-  const token = req.cookies.jwt || req.headers.cookie.replace('jwt=', '');
-  console.log(req.cookies.jwt);
+  const token = req.cookies.jwt;
   if (!token) {
     return handleAuthError(res);
   }
