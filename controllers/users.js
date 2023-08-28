@@ -67,7 +67,16 @@ const registerUser = (req, res) => {
         .then((hash) => User.create({
           name, about, avatar, email, password: hash,
         })
-          .then((user) => res.status(201).send({ data: user }))
+          .then((user) => {
+            const { _id } = user;
+            res.status(201).send({
+              data: email,
+              name,
+              about,
+              avatar,
+              _id,
+            });
+          })
           .catch((err) => {
             if (err.name === 'ValidationError') {
               return res.status(400).send({
@@ -131,7 +140,7 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      res.status(400).send({ message: err.message });
+      res.status(401).send({ message: err.message });
     });
 };
 
