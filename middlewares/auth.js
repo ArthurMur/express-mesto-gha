@@ -20,14 +20,8 @@ const tokenVerify = (token) => {
 };
 
 module.exports = (req, res, next) => {
-  const jwtSubstring = 'jwt=';
-  const tokenIndex = req.headers.cookie.indexOf(jwtSubstring);
-  let token = '';
-
-  if (tokenIndex !== -1) {
-    token = req.headers.cookie.slice(tokenIndex + jwtSubstring.length);
-  }
-
+  const token = req.cookies.jwt || req.headers.cookie.replace('jwt=', '');
+  console.log(req.cookies.jwt);
   if (!token) {
     return handleAuthError(res);
   }

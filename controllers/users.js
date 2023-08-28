@@ -11,6 +11,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 // возвращает информацию о текущем пользователе
 const getMe = (req, res) => {
+  console.log(req.headers);
   const { _id } = req.user;
   User.find({ _id })
     .then((user) => {
@@ -125,7 +126,6 @@ const updateUserData = (req, res) => {
 
 // Проверка почты и пароля
 const login = (req, res) => {
-  console.log(req.headers);
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
