@@ -48,11 +48,11 @@ const userSchema = new mongoose.Schema({
   },
 }, { versionKey: false });
 
-class UnauthorizedError extends Error {
+class ValidationError extends Error {
   constructor(message) {
     super(message);
-    this.name = 'UnauthorizedError';
-    this.statusCode = 401;
+    this.name = 'ValidationError ';
+    this.statusCode = 400;
   }
 }
 
@@ -61,11 +61,11 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
+        return Promise.reject(new ValidationError('Неправильные почта или пароль'));
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
+          return Promise.reject(new ValidationError('Неправильные почта или пароль'));
         }
         return user;
       });

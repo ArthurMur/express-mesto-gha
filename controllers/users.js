@@ -11,10 +11,10 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 // возвращает информацию о текущем пользователе
 const getMe = (req, res) => {
-  const { _id } = req.params;
-  User.find(_id)
+  const { _id } = req.user;
+  User.find({ _id })
     .then((user) => {
-      if (user) return res.status(200).send({ user });
+      if (user) return res.status(200).send(...user);
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
