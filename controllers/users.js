@@ -126,6 +126,12 @@ const updateUserData = (req, res) => {
 // Проверка почты и пароля
 const login = (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).send({
+      message: 'Заполните все обязательные поля (почта и пароль)',
+    });
+  }
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign(
