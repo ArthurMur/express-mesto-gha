@@ -5,13 +5,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-
-const {
-  login, registerUser,
-// eslint-disable-next-line import/extensions
-} = require('./controllers/users');
+const signinRouter = require('./routes/signin');
+const signupRouter = require('./routes/signup');
 
 const { PORT = 3000, BASE_PATH = 'localhost' } = process.env;
 
@@ -26,10 +24,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => console.log('База данных подключена.'))
   .catch((err) => console.log('DB error', err));
 
+app.use(errors());
+
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
-app.post('/signin', login);
-app.post('/signup', registerUser);
+app.use('/', signupRouter);
+app.use('/', signinRouter);
 
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемая страница не найдена' });
