@@ -28,8 +28,8 @@ app.use(errors());
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
-app.use('/', signupRouter);
-app.use('/', signinRouter);
+app.use('/signup', signupRouter);
+app.use('/signin', signinRouter);
 
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемая страница не найдена' });
