@@ -5,7 +5,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { JWT_SECRET } = process.env;
+const { JWT_SECRET = 'JWT_SECRET' } = process.env;
 
 const handleAuthError = (res) => {
   res.status(401).send({ message: 'Необходима авторизация' });
