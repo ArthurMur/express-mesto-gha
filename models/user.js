@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
+const { ValidationError, IncorrectDataError } = require('../middlewares/validationError');
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -48,20 +50,12 @@ const userSchema = new mongoose.Schema({
   },
 }, { versionKey: false });
 
-class ValidationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'ValidationError ';
-    this.statusCode = 400;
-  }
-}
-
 userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email }, { runValidators: true })
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new ValidationError('Неправильные почта или пароль'));
+        return Promise.reject(new IncorrectDataError('Неправильные почта или пароль'));
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
