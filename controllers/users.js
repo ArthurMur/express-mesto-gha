@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 require('dotenv').config();
 
-const { NODE_ENV, JWT_SECRET = 'JWT_SECRET' } = process.env;
+const { JWT_SECRET = 'JWT_SECRET' } = process.env;
 
 // возвращает информацию о текущем пользователе
 const getMe = (req, res) => {
