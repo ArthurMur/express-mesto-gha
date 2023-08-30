@@ -10,6 +10,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const signinRouter = require('./routes/signin');
 const signupRouter = require('./routes/signup');
+const errorHandler = require('./middlewares/error-handler');
 
 const { PORT = 3000, BASE_PATH = 'localhost' } = process.env;
 
@@ -24,8 +25,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => console.log('База данных подключена.'))
   .catch((err) => console.log('DB error', err));
 
-app.use(errors());
-
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 app.use('/signup', signupRouter);
@@ -34,6 +33,9 @@ app.use('/signin', signinRouter);
 app.use((req, res) => {
   res.status(404).send({ message: 'Запрашиваемая страница не найдена' });
 });
+
+app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Сервер подключен — http://${BASE_PATH}:${PORT}`);
