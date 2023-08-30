@@ -126,12 +126,6 @@ const updateUserData = (req, res) => {
 // Проверка почты и пароля
 const login = (req, res) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).send({
-      message: 'Заполните все обязательные поля (почта и пароль)',
-    });
-  }
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign(
@@ -146,7 +140,7 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      res.status(400).send({ message: err.message });
+      res.status(401).send({ message: err.message });
     });
 };
 
