@@ -1,10 +1,10 @@
-const router = require('express').Router();
+const signupRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 
 const { URL_REGEX } = require('../utils/constants');
 const { registerUser } = require('../controllers/users');
 
-router.post('/', celebrate({
+signupRouter.post('/', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(6),
@@ -16,4 +16,4 @@ router.post('/', celebrate({
   }),
 }), registerUser);
 
-module.exports = router;
+module.exports = signupRouter;
