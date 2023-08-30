@@ -5,7 +5,7 @@ const Card = require('../models/card');
 const deleteCard = (req, res, next) => {
   const removeCard = () => {
     Card.findByIdAndRemove(req.params.cardId)
-      .then((card) => res.send(card))
+      .then(() => res.status(200).send({ message: 'Карточка успешно удалена' }))
       .catch(next);
   };
   Card.findById(req.params.cardId)
@@ -13,9 +13,10 @@ const deleteCard = (req, res, next) => {
       if (!card) {
         return res.status(404).send({ message: 'Карточка не найдена', card });
       }
-      if (req.user._id === card.owner.toString()) {
-        return removeCard();
+      if (req.user._id !== card.owner.toString()) {
+        return res.status(403).send({ message: 'Вы можете удалить только свою карточку' });
       }
+      return removeCard();
     })
     .catch((err) => {
       if (err.name === 'CastError') {
