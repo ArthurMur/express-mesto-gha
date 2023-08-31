@@ -52,36 +52,31 @@ const getUserId = (req, res, next) => {
 
 // Создание пользователя (Регистрация)
 const registerUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
+  const { email, password } = req.body; // обязательные поля
+  const { name, about, avatar } = req.body; // необязательные
 
   if (!email || !password) {
     throw new RequestError('Все поля должны быть заполнены');
   }
-  bcrypt
-    .hash(password, 10, (err, hash) => {
-      User.findOne({ email }).select('+password')
-        .then(() => {
-          if (err.code === 11000) {
-            throw new EmailExistenceError('Даный email уже зарегистрирован');
-          }
-          return User.create({
-            name, about, avatar, email, password: hash,
-          });
+  bcrypt.hash(password, 10, (error, hash) => {
+    User.findOne({ email }).select('+password')
+      .then((user) => {
+        if (user) {
+          throw new EmailExistenceError('Даный email уже зарегистрирован');
+        }
+        return User.create({
+          name, about, avatar, email, password: hash,
         });
-    })
-    .then((user) => {
-      const { _id } = user;
-      res.status(201).send({
-        data: email,
-        name,
-        about,
-        avatar,
-        _id,
-      });
-    })
-    .catch((err) => next(err));
+      })
+      .then(() => {
+        res
+          .status(201)
+          .send({
+            name, about, avatar, email,
+          });
+      })
+      .catch((err) => next(err));
+  });
 };
 
 // Обновление аватара пользователя
