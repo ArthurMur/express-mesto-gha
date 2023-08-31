@@ -119,7 +119,7 @@ const updateUserData = (req, res, next) => {
 };
 
 // Проверка почты и пароля
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -136,7 +136,7 @@ const login = (req, res) => {
     })
     .catch(() => {
       throw new AuthorizationError('Ошибка аутентификации');
-    });
+    }).catch(next);
 };
 
 module.exports = {
