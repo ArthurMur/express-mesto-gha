@@ -1,4 +1,4 @@
-class ValidationError extends Error {
+class RequestError extends Error {
   constructor(message) {
     super(message);
     this.name = 'ValidationError ';
@@ -6,4 +6,4 @@ class ValidationError extends Error {
   }
 }
 
-module.exports = ValidationError;
+module.exports = RequestError;
