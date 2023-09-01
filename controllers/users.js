@@ -76,6 +76,8 @@ const registerUser = (req, res, next) => {
         next(new EmailExistenceError('Даный email уже зарегистрирован'));
       } else if (err.name === 'ValidationError') {
         next(new RequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
     });
 };
