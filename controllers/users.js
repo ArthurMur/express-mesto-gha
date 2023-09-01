@@ -58,25 +58,26 @@ const registerUser = (req, res, next) => {
   if (!email || !password) {
     throw new RequestError('Все поля должны быть заполнены');
   }
-  bcrypt.hash(password, 10, (error, hash) => {
-    User.findOne({ email }).select('+password')
-      .then((user) => {
-        if (user) {
-          throw new EmailExistenceError('Даный email уже зарегистрирован');
-        }
-        return User.create({
-          name, about, avatar, email, password: hash,
-        });
-      })
-      .then(() => {
-        res
-          .status(201)
-          .send({
-            name, about, avatar, email,
-          });
-      })
-      .catch((err) => next(err));
-  });
+
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+    })).then((user) => {
+      const { _id } = user;
+      res.status(201).send({
+        name, about, avatar, email, _id,
+      });
+    }).catch((err) => {
+      if (err.code === 11000) {
+        next(new EmailExistenceError('Даный email уже зарегистрирован'));
+      } else if (err.name === 'ValidationError') {
+        next(new RequestError('Переданы некорректные данные'));
+      }
+    });
 };
 
 // Обновление аватара пользователя
