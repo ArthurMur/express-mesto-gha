@@ -8,6 +8,7 @@ const { rateLimit } = require('express-rate-limit');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
+const cors = require('cors');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const signinRouter = require('./routes/signin');
@@ -15,9 +16,31 @@ const signupRouter = require('./routes/signup');
 const errorHandler = require('./middlewares/error-handler');
 const NotFoundError = require('./errors/notFoundError');
 
+const { requestLogger, errorLogger } = require('./middlewares/logger'); // логгеры
+
 const { PORT = 3000, BASE_PATH = 'localhost' } = process.env;
 
 const app = express();
+
+const whitelist = [ // список разрешенных доменов
+  'http://api.domainname.students.nomoredomainsrocks.ru',
+  'https://api.domainname.students.nomoredomainsrocks.ru',
+  'http://mestechko.students.nomoredomainsicu.ru',
+  'https://mestechko.students.nomoredomainsicu.ru',
+  'https://localhost:3000',
+  'http://localhost:3000',
+  'https://praktikum.tk',
+  'http://praktikum.tk',
+];
+
+const corsOptions = {
+  origin: whitelist, // источник домена (откуда запрос)
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // методы
+  allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization', // заголовок Authorization
+  credentials: true, // обмен учетными данными (cookies)
+};
+
+app.use(cors(corsOptions)); // доступ для других доменов
 
 app.use(helmet());
 
@@ -40,6 +63,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => console.log('База данных подключена.'))
   .catch((err) => console.log('DB error', err));
 
+// логгер запросов
+app.use(requestLogger);
+
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 app.use('/signup', signupRouter);
@@ -48,6 +74,9 @@ app.use('/signin', signinRouter);
 app.use((req, res, next) => {
   next(new NotFoundError('Путь не найден'));
 });
+
+// логгер ошибок
+app.use(errorLogger);
 
 app.use(errors());
 app.use(errorHandler);

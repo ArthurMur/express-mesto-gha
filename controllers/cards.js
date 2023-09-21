@@ -35,7 +35,7 @@ const deleteCard = (req, res, next) => {
 // Получение карточек
 const getCards = (req, res, next) => {
   Card.find()
-    .then((cardList) => res.send({ data: cardList }))
+    .then((cardList) => res.send(cardList))
     .catch(next);
 };
 
@@ -45,7 +45,7 @@ const createCard = (req, res, next) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((cardObject) => res.status(201).send({ data: cardObject }))
+    .then((cardObject) => res.status(201).send(cardObject))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new RequestError('Переданы некорректные данные карточки'));
@@ -81,7 +81,7 @@ const dislikeCard = (req, res, next) => {
   )
     .then((dislikedCard) => {
       if (dislikedCard) {
-        res.send({ data: dislikedCard });
+        res.send(dislikedCard);
       } else {
         throw new NotFoundError('Карточка не найдена');
       }

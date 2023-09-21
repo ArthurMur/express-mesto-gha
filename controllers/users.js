@@ -1,13 +1,10 @@
-/* eslint-disable import/no-extraneous-dependencies */
-/* eslint-disable import/no-unresolved */
 /* eslint-disable consistent-return */
-// eslint-disable-next-line import/no-unresolved
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 require('dotenv').config();
 
-const { JWT_SECRET = 'JWT_SECRET' } = process.env;
+const { JWT_SECRET, NODE_ENV } = process.env;
 
 // классы с ответами об ошибках
 const RequestError = require('../errors/requestError'); // 400
@@ -128,14 +125,15 @@ const login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        JWT_SECRET,
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: '7d' },
       );
-      res.cookie('jwt', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-      });
-      res.send({ token });
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000,
+          httpOnly: true,
+          secue: true,
+        }).send({ message: 'Успешная аутентификация' }).end();
     })
     .catch(() => {
       throw new AuthorizationError('Ошибка аутентификации');
